@@ -6,6 +6,7 @@ import { TaskCard } from '@/components/TaskCard';
 import { EmptyState } from '@/components/EmptyState';
 import { HeaderStats } from '@/components/HeaderStats';
 import { FilterButtons } from '@/components/FilterButtons';
+import { StudyStreak } from '@/components/StudyStreak';
 import { StudyTask } from '@/types/StudyTask';
 import { BookOpen, CircleCheck as CheckCircle2 } from 'lucide-react-native';
 
@@ -52,7 +53,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <BookOpen size={28} color="#6366f1" />
-          <Text style={styles.headerTitle}>StudyReminder</Text>
+          <Text style={styles.headerTitle}>StudyReminder Pro</Text>
         </View>
         <Text style={styles.headerSubtitle}>Organiza tu tiempo de estudio</Text>
       </View>
@@ -63,10 +64,14 @@ export default function HomeScreen() {
         completedTasks={completedTasks.length}
       />
 
-      <FilterButtons 
-        activeFilter={filter}
-        onFilterChange={setFilter}
-      />
+      <View style={styles.content}>
+        <StudyStreak />
+        
+        <FilterButtons 
+          activeFilter={filter}
+          onFilterChange={setFilter}
+        />
+      </View>
 
       <ScrollView style={styles.taskList} showsVerticalScrollIndicator={false}>
         {sortedTasks.length === 0 ? (
@@ -120,6 +125,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     color: '#6b7280',
     marginTop: 4,
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
   taskList: {
     flex: 1,

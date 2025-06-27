@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Calendar, Chrome as Home, Plus, Settings } from 'lucide-react-native';
+import { Calendar, Chrome as Home, Plus, Settings, BarChart3, Timer } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -46,6 +46,24 @@ export default function TabLayout() {
           title: 'Agregar',
           tabBarIcon: ({ size, color }) => (
             <Plus size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="pomodoro"
+        options={{
+          title: 'Pomodoro',
+          tabBarIcon: ({ size, color }) => (
+            <Timer size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="statistics"
+        options={{
+          title: 'Estadísticas',
+          tabBarIcon: ({ size, color }) => (
+            <BarChart3 size={size} color={color} />
           ),
         }}
       />

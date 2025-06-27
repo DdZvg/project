@@ -1,15 +1,23 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "StudyReminder Pro",
+    "slug": "study-reminder-pro",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "studyreminder",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.studyreminder.pro"
+    },
+    "android": {
+      "package": "com.studyreminder.pro",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#6366f1"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -19,7 +27,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
@@ -29,9 +38,6 @@
       "eas": {
         "projectId": "7c40cfc4-9b21-4630-9991-bf2e4795515c"
       }
-    },
-    "android": {
-      "package": "com.edson8888.SVproductions"
     }
   }
 }
