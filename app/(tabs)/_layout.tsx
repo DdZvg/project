@@ -1,21 +1,24 @@
 import { Tabs } from 'expo-router';
-import { Calendar, Chrome as Home, Plus, Settings, ChartBar as BarChart3, Timer } from 'lucide-react-native';
+import { Calendar, Chrome as Home, Plus, Settings, ChartBar as BarChart3, Timer, Target, FolderOpen } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TabLayout() {
+  const { theme } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: theme.colors.surface,
           borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
+          borderTopColor: theme.colors.border,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: '#6366f1',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarLabelStyle: {
           fontSize: 12,
           fontFamily: 'Inter-Medium',
@@ -32,11 +35,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="calendar"
+        name="categories"
         options={{
-          title: 'Calendario',
+          title: 'Materias',
           tabBarIcon: ({ size, color }) => (
-            <Calendar size={size} color={color} />
+            <FolderOpen size={size} color={color} />
           ),
         }}
       />
@@ -46,6 +49,24 @@ export default function TabLayout() {
           title: 'Agregar',
           tabBarIcon: ({ size, color }) => (
             <Plus size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="goals"
+        options={{
+          title: 'Metas',
+          tabBarIcon: ({ size, color }) => (
+            <Target size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: 'Calendario',
+          tabBarIcon: ({ size, color }) => (
+            <Calendar size={size} color={color} />
           ),
         }}
       />

@@ -7,7 +7,10 @@ import { Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold } from '@expo-goo
 import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { StudyProvider } from '@/contexts/StudyContext';
+import { GoalsProvider } from '@/contexts/GoalsContext';
+import { CategoriesProvider } from '@/contexts/CategoriesContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -35,14 +38,20 @@ export default function RootLayout() {
   }
 
   return (
-    <NotificationProvider>
-      <StudyProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="dark" backgroundColor="#6366f1" />
-      </StudyProvider>
-    </NotificationProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <CategoriesProvider>
+          <GoalsProvider>
+            <StudyProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+            </StudyProvider>
+          </GoalsProvider>
+        </CategoriesProvider>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }
