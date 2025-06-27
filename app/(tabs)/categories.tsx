@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCategories } from '@/contexts/CategoriesContext';
 import { useStudyContext } from '@/contexts/StudyContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { FolderOpen, Plus, Edit3, Trash2, BookOpen } from 'lucide-react-native';
+import { FolderOpen, Plus, CreditCard as Edit3, Trash2, BookOpen } from 'lucide-react-native';
 
 const colorOptions = [
   '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#ec4899',

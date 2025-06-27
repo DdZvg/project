@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGoals } from '@/contexts/GoalsContext';
 import { useStudyContext } from '@/contexts/StudyContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Target, Plus, Trophy, Calendar, Clock, CheckCircle2, Trash2 } from 'lucide-react-native';
+import { Target, Plus, Trophy, Calendar, Clock, CircleCheck as CheckCircle2, Trash2 } from 'lucide-react-native';
 
 export default function GoalsScreen() {
   const { theme } = useTheme();
