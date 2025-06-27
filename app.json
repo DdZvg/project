@@ -29,6 +29,9 @@
       "eas": {
         "projectId": "7c40cfc4-9b21-4630-9991-bf2e4795515c"
       }
+    },
+    "android": {
+      "package": "com.edson8888.SVproductions"
     }
   }
 }
