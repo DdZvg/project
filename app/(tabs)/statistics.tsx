@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useStudyContext } from '@/contexts/StudyContext';
-import { BarChart3, TrendingUp, Clock, Target, Calendar, Award } from 'lucide-react-native';
+import { ChartBar as BarChart3, TrendingUp, Clock, Target, Calendar, Award } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
