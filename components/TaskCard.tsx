@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { StudyTask } from '@/types/StudyTask';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useStudyContext } from '@/contexts/StudyContext';
-import { CircleCheck, Circle, Clock, AlertCircle, Trash2 } from 'lucide-react-native';
+import { CircleCheck, Circle, Clock, CircleAlert as AlertCircle, Trash2 } from 'lucide-react-native';
 
 interface TaskCardProps {
   task: StudyTask;

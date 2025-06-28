@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
-import { CheckCircle, Clock, BookOpen } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Clock, BookOpen } from 'lucide-react-native';
 
 interface HeaderStatsProps {
   totalTasks: number;
