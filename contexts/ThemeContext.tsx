@@ -4,17 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export interface Theme {
   colors: {
     primary: string;
-    secondary: string;
     background: string;
     surface: string;
-    card: string;
     text: string;
     textSecondary: string;
     border: string;
     success: string;
     warning: string;
     error: string;
-    info: string;
   };
   isDark: boolean;
 }
@@ -22,17 +19,14 @@ export interface Theme {
 const lightTheme: Theme = {
   colors: {
     primary: '#6366f1',
-    secondary: '#8b5cf6',
     background: '#f8fafc',
     surface: '#ffffff',
-    card: '#ffffff',
     text: '#1f2937',
     textSecondary: '#6b7280',
     border: '#e5e7eb',
     success: '#10b981',
     warning: '#f59e0b',
     error: '#dc2626',
-    info: '#3b82f6',
   },
   isDark: false,
 };
@@ -40,17 +34,14 @@ const lightTheme: Theme = {
 const darkTheme: Theme = {
   colors: {
     primary: '#818cf8',
-    secondary: '#a78bfa',
     background: '#0f172a',
     surface: '#1e293b',
-    card: '#334155',
     text: '#f1f5f9',
     textSecondary: '#94a3b8',
     border: '#475569',
     success: '#34d399',
     warning: '#fbbf24',
     error: '#f87171',
-    info: '#60a5fa',
   },
   isDark: true,
 };

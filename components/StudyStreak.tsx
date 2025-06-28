@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useStudyContext } from '@/contexts/StudyContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Flame, Calendar } from 'lucide-react-native';
 
 export function StudyStreak() {
+  const { theme } = useTheme();
   const { tasks } = useStudyContext();
+  const styles = createStyles(theme);
 
   const calculateStreak = () => {
     const completedTasks = tasks
@@ -45,7 +48,7 @@ export function StudyStreak() {
     <View style={styles.container}>
       <View style={styles.streakCard}>
         <View style={styles.streakIcon}>
-          <Flame size={24} color="#f59e0b" />
+          <Flame size={24} color={theme.colors.warning} />
         </View>
         <View style={styles.streakInfo}>
           <Text style={styles.streakNumber}>{streak}</Text>
@@ -55,7 +58,7 @@ export function StudyStreak() {
 
       <View style={styles.weekCard}>
         <View style={styles.weekIcon}>
-          <Calendar size={24} color="#6366f1" />
+          <Calendar size={24} color={theme.colors.primary} />
         </View>
         <View style={styles.weekInfo}>
           <Text style={styles.weekNumber}>{thisWeekTasks}</Text>
@@ -66,7 +69,7 @@ export function StudyStreak() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     gap: 12,
@@ -74,20 +77,20 @@ const styles = StyleSheet.create({
   },
   streakCard: {
     flex: 1,
-    backgroundColor: '#fef3c7',
+    backgroundColor: theme.colors.warning + '20',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: '#fbbf24',
+    borderColor: theme.colors.warning + '30',
   },
   streakIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -97,29 +100,29 @@ const styles = StyleSheet.create({
   streakNumber: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#92400e',
+    color: theme.colors.warning,
   },
   streakLabel: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: '#b45309',
+    color: theme.colors.warning,
   },
   weekCard: {
     flex: 1,
-    backgroundColor: '#dbeafe',
+    backgroundColor: theme.colors.primary + '20',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     borderWidth: 1,
-    borderColor: '#60a5fa',
+    borderColor: theme.colors.primary + '30',
   },
   weekIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -129,11 +132,11 @@ const styles = StyleSheet.create({
   weekNumber: {
     fontSize: 20,
     fontFamily: 'Inter-Bold',
-    color: '#1e40af',
+    color: theme.colors.primary,
   },
   weekLabel: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: '#2563eb',
+    color: theme.colors.primary,
   },
 });

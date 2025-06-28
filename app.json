@@ -22,13 +22,13 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "StudyReminder Pro"
     },
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser",
-      "expo-notifications"
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

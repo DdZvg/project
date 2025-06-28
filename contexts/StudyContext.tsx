@@ -1,42 +1,41 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StudyTask, Priority, RepeatType, StudySession, Attachment } from '@/types/StudyTask';
-import { useNotificationContext } from './NotificationContext';
-import { useGoals } from './GoalsContext';
+import { StudyTask, Priority, Category } from '@/types/StudyTask';
 
 interface StudyContextType {
   tasks: StudyTask[];
-  sessions: StudySession[];
+  categories: Category[];
   userLevel: number;
   totalPoints: number;
-  addTask: (task: Omit<StudyTask, 'id' | 'completed' | 'createdAt' | 'points'>) => void;
-  updateTask: (taskId: string, updates: Partial<StudyTask>) => void;
-  completeTask: (taskId: string, actualDuration?: number) => void;
-  deleteTask: (taskId: string) => void;
-  clearAllTasks: () => void;
-  exportData: () => Promise<void>;
-  importData: () => Promise<void>;
-  addAttachment: (taskId: string, attachment: Omit<Attachment, 'id' | 'createdAt'>) => void;
-  removeAttachment: (taskId: string, attachmentId: string) => void;
-  startStudySession: (taskId: string) => string;
-  endStudySession: (sessionId: string, notes?: string) => void;
   loading: boolean;
+  addTask: (task: Omit<StudyTask, 'id' | 'completed' | 'createdAt' | 'points'>) => Promise<void>;
+  updateTask: (taskId: string, updates: Partial<StudyTask>) => Promise<void>;
+  completeTask: (taskId: string) => Promise<void>;
+  deleteTask: (taskId: string) => Promise<void>;
+  addCategory: (category: Omit<Category, 'id' | 'createdAt'>) => Promise<void>;
+  deleteCategory: (categoryId: string) => Promise<void>;
+  clearAllTasks: () => Promise<void>;
 }
 
 const StudyContext = createContext<StudyContextType | undefined>(undefined);
 
 const STORAGE_KEY = '@study_tasks';
-const SESSIONS_KEY = '@study_sessions';
+const CATEGORIES_KEY = '@study_categories';
 const USER_STATS_KEY = '@user_stats';
+
+const defaultCategories: Omit<Category, 'id' | 'createdAt'>[] = [
+  { name: 'Matemáticas', color: '#3b82f6' },
+  { name: 'Ciencias', color: '#10b981' },
+  { name: 'Historia', color: '#f59e0b' },
+  { name: 'Literatura', color: '#8b5cf6' },
+];
 
 export function StudyProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<StudyTask[]>([]);
-  const [sessions, setSessions] = useState<StudySession[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [userLevel, setUserLevel] = useState(1);
   const [totalPoints, setTotalPoints] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { scheduleNotification, cancelNotification } = useNotificationContext();
-  const { updateGoalProgress } = useGoals();
 
   useEffect(() => {
     loadData();
@@ -44,18 +43,28 @@ export function StudyProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [storedTasks, storedSessions, storedStats] = await Promise.all([
+      const [storedTasks, storedCategories, storedStats] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEY),
-        AsyncStorage.getItem(SESSIONS_KEY),
+        AsyncStorage.getItem(CATEGORIES_KEY),
         AsyncStorage.getItem(USER_STATS_KEY),
       ]);
 
       if (storedTasks) {
         setTasks(JSON.parse(storedTasks));
       }
-      if (storedSessions) {
-        setSessions(JSON.parse(storedSessions));
+
+      if (storedCategories) {
+        setCategories(JSON.parse(storedCategories));
+      } else {
+        const initialCategories = defaultCategories.map(cat => ({
+          ...cat,
+          id: generateId(),
+          createdAt: new Date().toISOString(),
+        }));
+        setCategories(initialCategories);
+        await AsyncStorage.setItem(CATEGORIES_KEY, JSON.stringify(initialCategories));
       }
+
       if (storedStats) {
         const stats = JSON.parse(storedStats);
         setUserLevel(stats.level || 1);
@@ -68,22 +77,21 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const saveTasks = async (newTasks: StudyTask[]) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
-      setTasks(newTasks);
-    } catch (error) {
-      console.error('Error saving tasks:', error);
-    }
+  const generateId = () => {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
   };
 
-  const saveSessions = async (newSessions: StudySession[]) => {
-    try {
-      await AsyncStorage.setItem(SESSIONS_KEY, JSON.stringify(newSessions));
-      setSessions(newSessions);
-    } catch (error) {
-      console.error('Error saving sessions:', error);
-    }
+  const calculatePoints = (task: StudyTask) => {
+    let points = 10;
+    if (task.priority === 'high') points += 15;
+    else if (task.priority === 'medium') points += 10;
+    else points += 5;
+    points += Math.floor(task.duration / 15) * 5;
+    return points;
+  };
+
+  const calculateLevel = (points: number) => {
+    return Math.floor(points / 100) + 1;
   };
 
   const saveUserStats = async (level: number, points: number) => {
@@ -97,241 +105,101 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const calculatePoints = (task: StudyTask, actualDuration?: number) => {
-    let points = 10; // Base points
-    
-    // Priority bonus
-    if (task.priority === 'high') points += 15;
-    else if (task.priority === 'medium') points += 10;
-    else points += 5;
-    
-    // Duration bonus
-    const duration = actualDuration || task.duration;
-    points += Math.floor(duration / 15) * 5;
-    
-    return points;
-  };
-
-  const calculateLevel = (points: number) => {
-    return Math.floor(points / 100) + 1;
-  };
-
-  const generateId = () => {
-    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  };
-
   const addTask = async (taskData: Omit<StudyTask, 'id' | 'completed' | 'createdAt' | 'points'>) => {
-    const newTask: StudyTask = {
-      ...taskData,
-      id: generateId(),
-      completed: false,
-      createdAt: new Date().toISOString(),
-      points: 0,
-      attachments: [],
-    };
+    try {
+      const newTask: StudyTask = {
+        ...taskData,
+        id: generateId(),
+        completed: false,
+        createdAt: new Date().toISOString(),
+        points: 0,
+      };
 
-    const newTasks = [...tasks, newTask];
-    await saveTasks(newTasks);
-
-    // Schedule notification
-    scheduleNotification(newTask);
-
-    // Handle repeat tasks
-    if (taskData.repeatType !== 'none') {
-      scheduleRepeatingTasks(newTask);
+      const newTasks = [...tasks, newTask];
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
+      setTasks(newTasks);
+    } catch (error) {
+      console.error('Error adding task:', error);
     }
   };
 
   const updateTask = async (taskId: string, updates: Partial<StudyTask>) => {
-    const newTasks = tasks.map(task =>
-      task.id === taskId ? { ...task, ...updates } : task
-    );
-    await saveTasks(newTasks);
-  };
-
-  const scheduleRepeatingTasks = async (task: StudyTask) => {
-    const repeatTasks: StudyTask[] = [];
-    const baseDate = new Date(task.reminderDate);
-    
-    for (let i = 1; i <= 10; i++) {
-      const nextDate = new Date(baseDate);
-      
-      switch (task.repeatType) {
-        case 'daily':
-          nextDate.setDate(baseDate.getDate() + i);
-          break;
-        case 'weekly':
-          nextDate.setDate(baseDate.getDate() + (i * 7));
-          break;
-        case 'monthly':
-          nextDate.setMonth(baseDate.getMonth() + i);
-          break;
-      }
-
-      const repeatTask: StudyTask = {
-        ...task,
-        id: generateId(),
-        reminderDate: nextDate.toISOString(),
-      };
-
-      repeatTasks.push(repeatTask);
-      scheduleNotification(repeatTask);
+    try {
+      const newTasks = tasks.map(task =>
+        task.id === taskId ? { ...task, ...updates } : task
+      );
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
+      setTasks(newTasks);
+    } catch (error) {
+      console.error('Error updating task:', error);
     }
-
-    const newTasks = [...tasks, ...repeatTasks];
-    await saveTasks(newTasks);
   };
 
-  const completeTask = async (taskId: string, actualDuration?: number) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task) return;
+  const completeTask = async (taskId: string) => {
+    try {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
 
-    const points = calculatePoints(task, actualDuration);
-    const newTotalPoints = totalPoints + points;
-    const newLevel = calculateLevel(newTotalPoints);
+      const points = task.completed ? 0 : calculatePoints(task);
+      const newTotalPoints = task.completed ? totalPoints - (task.points || 0) : totalPoints + points;
+      const newLevel = calculateLevel(newTotalPoints);
 
-    const newTasks = tasks.map(t =>
-      t.id === taskId 
-        ? { 
-            ...t, 
-            completed: !t.completed,
-            points: t.completed ? 0 : points,
-            actualDuration: t.completed ? undefined : actualDuration
-          } 
-        : t
-    );
+      const newTasks = tasks.map(t =>
+        t.id === taskId 
+          ? { ...t, completed: !t.completed, points: task.completed ? 0 : points }
+          : t
+      );
 
-    await saveTasks(newTasks);
-    await saveUserStats(newLevel, t.completed ? totalPoints - points : newTotalPoints);
-
-    // Update goals progress
-    const completedTasks = newTasks.filter(t => t.completed).length;
-    updateGoalProgress('daily-tasks', completedTasks);
-
-    // Cancel notification if task is completed
-    if (!task.completed) {
-      cancelNotification(taskId);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
+      setTasks(newTasks);
+      await saveUserStats(newLevel, newTotalPoints);
+    } catch (error) {
+      console.error('Error completing task:', error);
     }
   };
 
   const deleteTask = async (taskId: string) => {
-    const newTasks = tasks.filter(task => task.id !== taskId);
-    await saveTasks(newTasks);
-    cancelNotification(taskId);
-  };
-
-  const clearAllTasks = async () => {
-    await saveTasks([]);
-    tasks.forEach(task => cancelNotification(task.id));
-  };
-
-  const addAttachment = async (taskId: string, attachmentData: Omit<Attachment, 'id' | 'createdAt'>) => {
-    const newAttachment: Attachment = {
-      ...attachmentData,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-    };
-
-    const newTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          attachments: [...(task.attachments || []), newAttachment],
-        };
-      }
-      return task;
-    });
-
-    await saveTasks(newTasks);
-  };
-
-  const removeAttachment = async (taskId: string, attachmentId: string) => {
-    const newTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          attachments: task.attachments?.filter(att => att.id !== attachmentId) || [],
-        };
-      }
-      return task;
-    });
-
-    await saveTasks(newTasks);
-  };
-
-  const startStudySession = (taskId: string): string => {
-    const sessionId = generateId();
-    const newSession: StudySession = {
-      id: sessionId,
-      taskId,
-      startTime: new Date().toISOString(),
-      duration: 0,
-      completed: false,
-    };
-
-    const newSessions = [...sessions, newSession];
-    saveSessions(newSessions);
-    return sessionId;
-  };
-
-  const endStudySession = async (sessionId: string, notes?: string) => {
-    const session = sessions.find(s => s.id === sessionId);
-    if (!session) return;
-
-    const endTime = new Date();
-    const startTime = new Date(session.startTime);
-    const duration = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60));
-
-    const newSessions = sessions.map(s =>
-      s.id === sessionId
-        ? {
-            ...s,
-            endTime: endTime.toISOString(),
-            duration,
-            notes,
-            completed: true,
-          }
-        : s
-    );
-
-    await saveSessions(newSessions);
-  };
-
-  const exportData = async () => {
     try {
-      const dataToExport = {
-        tasks,
-        sessions,
-        userStats: { level: userLevel, points: totalPoints },
-        exportDate: new Date().toISOString(),
-        version: '2.0.0',
-      };
-      
-      await AsyncStorage.setItem('@study_backup', JSON.stringify(dataToExport));
+      const newTasks = tasks.filter(task => task.id !== taskId);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
+      setTasks(newTasks);
     } catch (error) {
-      console.error('Error exporting data:', error);
-      throw error;
+      console.error('Error deleting task:', error);
     }
   };
 
-  const importData = async () => {
+  const addCategory = async (categoryData: Omit<Category, 'id' | 'createdAt'>) => {
     try {
-      const backupData = await AsyncStorage.getItem('@study_backup');
-      if (backupData) {
-        const parsed = JSON.parse(backupData);
-        if (parsed.tasks) {
-          await saveTasks(parsed.tasks);
-        }
-        if (parsed.sessions) {
-          await saveSessions(parsed.sessions);
-        }
-        if (parsed.userStats) {
-          await saveUserStats(parsed.userStats.level, parsed.userStats.points);
-        }
-      }
+      const newCategory: Category = {
+        ...categoryData,
+        id: generateId(),
+        createdAt: new Date().toISOString(),
+      };
+
+      const newCategories = [...categories, newCategory];
+      await AsyncStorage.setItem(CATEGORIES_KEY, JSON.stringify(newCategories));
+      setCategories(newCategories);
     } catch (error) {
-      console.error('Error importing data:', error);
-      throw error;
+      console.error('Error adding category:', error);
+    }
+  };
+
+  const deleteCategory = async (categoryId: string) => {
+    try {
+      const newCategories = categories.filter(category => category.id !== categoryId);
+      await AsyncStorage.setItem(CATEGORIES_KEY, JSON.stringify(newCategories));
+      setCategories(newCategories);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+    }
+  };
+
+  const clearAllTasks = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      setTasks([]);
+    } catch (error) {
+      console.error('Error clearing tasks:', error);
     }
   };
 
@@ -339,21 +207,17 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     <StudyContext.Provider
       value={{
         tasks,
-        sessions,
+        categories,
         userLevel,
         totalPoints,
+        loading,
         addTask,
         updateTask,
         completeTask,
         deleteTask,
+        addCategory,
+        deleteCategory,
         clearAllTasks,
-        exportData,
-        importData,
-        addAttachment,
-        removeAttachment,
-        startStudySession,
-        endStudySession,
-        loading,
       }}
     >
       {children}

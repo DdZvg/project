@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { StudyTask } from '@/types/StudyTask';
-import { CircleCheck as CheckCircle2, Circle, Clock, CircleAlert as AlertCircle, Trash2 } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useStudyContext } from '@/contexts/StudyContext';
+import { CircleCheck, Circle, Clock, AlertCircle, Trash2 } from 'lucide-react-native';
 
 interface TaskCardProps {
   task: StudyTask;
@@ -11,12 +13,16 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onComplete, onDelete, showDate = true }: TaskCardProps) {
+  const { theme } = useTheme();
+  const { categories } = useStudyContext();
+  const styles = createStyles(theme);
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return '#dc2626';
-      case 'medium': return '#f59e0b';
-      case 'low': return '#059669';
-      default: return '#6b7280';
+      case 'high': return theme.colors.error;
+      case 'medium': return theme.colors.warning;
+      case 'low': return theme.colors.success;
+      default: return theme.colors.textSecondary;
     }
   };
 
@@ -50,6 +56,12 @@ export function TaskCard({ task, onComplete, onDelete, showDate = true }: TaskCa
     return new Date(task.reminderDate) < new Date() && !task.completed;
   };
 
+  const getCategory = () => {
+    return categories.find(cat => cat.id === task.categoryId);
+  };
+
+  const category = getCategory();
+
   return (
     <View style={[styles.container, task.completed && styles.completedContainer]}>
       <View style={styles.header}>
@@ -58,9 +70,9 @@ export function TaskCard({ task, onComplete, onDelete, showDate = true }: TaskCa
           onPress={() => onComplete(task.id)}
         >
           {task.completed ? (
-            <CheckCircle2 size={24} color="#10b981" />
+            <CircleCheck size={24} color={theme.colors.success} />
           ) : (
-            <Circle size={24} color="#6b7280" />
+            <Circle size={24} color={theme.colors.textSecondary} />
           )}
         </TouchableOpacity>
         
@@ -83,13 +95,19 @@ export function TaskCard({ task, onComplete, onDelete, showDate = true }: TaskCa
               </View>
               
               <View style={styles.durationTag}>
-                <Clock size={12} color="#6b7280" />
+                <Clock size={12} color={theme.colors.textSecondary} />
                 <Text style={styles.durationText}>{task.duration}min</Text>
               </View>
+
+              {category && (
+                <View style={[styles.categoryTag, { backgroundColor: category.color }]}>
+                  <Text style={styles.categoryText}>{category.name}</Text>
+                </View>
+              )}
               
               {isOverdue() && (
                 <View style={styles.overdueTag}>
-                  <AlertCircle size={12} color="#dc2626" />
+                  <AlertCircle size={12} color={theme.colors.error} />
                   <Text style={styles.overdueText}>Retrasado</Text>
                 </View>
               )}
@@ -107,21 +125,21 @@ export function TaskCard({ task, onComplete, onDelete, showDate = true }: TaskCa
           style={styles.deleteButton}
           onPress={() => onDelete(task.id)}
         >
-          <Trash2 size={18} color="#dc2626" />
+          <Trash2 size={18} color={theme.colors.error} />
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.colors.border,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -133,7 +151,6 @@ const styles = StyleSheet.create({
   },
   completedContainer: {
     opacity: 0.7,
-    backgroundColor: '#f9fafb',
   },
   header: {
     flexDirection: 'row',
@@ -149,12 +166,12 @@ const styles = StyleSheet.create({
   subject: {
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
-    color: '#1f2937',
+    color: theme.colors.text,
     marginBottom: 8,
   },
   completedText: {
     textDecorationLine: 'line-through',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
   },
   metadata: {
     gap: 8,
@@ -167,13 +184,13 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#374151',
+    color: theme.colors.text,
     textTransform: 'capitalize',
   },
   time: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
   },
   tags: {
     flexDirection: 'row',
@@ -194,7 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: theme.colors.background,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -202,13 +219,23 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
+  },
+  categoryTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  categoryText: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: '#ffffff',
   },
   overdueTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#fef2f2',
+    backgroundColor: theme.colors.error + '20',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -216,12 +243,12 @@ const styles = StyleSheet.create({
   overdueText: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: '#dc2626',
+    color: theme.colors.error,
   },
   notes: {
     fontSize: 14,
     fontFamily: 'Inter-Regular',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
     marginTop: 8,
     lineHeight: 18,
   },

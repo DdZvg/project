@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { CircleCheck as CheckCircle, Clock, BookOpen } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { CheckCircle, Clock, BookOpen } from 'lucide-react-native';
 
 interface HeaderStatsProps {
   totalTasks: number;
@@ -9,27 +10,30 @@ interface HeaderStatsProps {
 }
 
 export function HeaderStats({ totalTasks, pendingTasks, completedTasks }: HeaderStatsProps) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   return (
     <View style={styles.container}>
       <View style={styles.stat}>
-        <View style={[styles.statIcon, { backgroundColor: '#eff6ff' }]}>
-          <BookOpen size={20} color="#2563eb" />
+        <View style={[styles.statIcon, { backgroundColor: theme.colors.primary + '20' }]}>
+          <BookOpen size={20} color={theme.colors.primary} />
         </View>
         <Text style={styles.statNumber}>{totalTasks}</Text>
         <Text style={styles.statLabel}>Total</Text>
       </View>
       
       <View style={styles.stat}>
-        <View style={[styles.statIcon, { backgroundColor: '#fef3c7' }]}>
-          <Clock size={20} color="#d97706" />
+        <View style={[styles.statIcon, { backgroundColor: theme.colors.warning + '20' }]}>
+          <Clock size={20} color={theme.colors.warning} />
         </View>
         <Text style={styles.statNumber}>{pendingTasks}</Text>
         <Text style={styles.statLabel}>Pendientes</Text>
       </View>
       
       <View style={styles.stat}>
-        <View style={[styles.statIcon, { backgroundColor: '#d1fae5' }]}>
-          <CheckCircle size={20} color="#059669" />
+        <View style={[styles.statIcon, { backgroundColor: theme.colors.success + '20' }]}>
+          <CheckCircle size={20} color={theme.colors.success} />
         </View>
         <Text style={styles.statNumber}>{completedTasks}</Text>
         <Text style={styles.statLabel}>Completadas</Text>
@@ -38,14 +42,14 @@ export function HeaderStats({ totalTasks, pendingTasks, completedTasks }: Header
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: theme.colors.border,
   },
   stat: {
     flex: 1,
@@ -62,12 +66,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 18,
     fontFamily: 'Inter-Bold',
-    color: '#1f2937',
+    color: theme.colors.text,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 12,
     fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
   },
 });

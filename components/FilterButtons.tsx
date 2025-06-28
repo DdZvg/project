@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface FilterButtonsProps {
   activeFilter: 'all' | 'pending' | 'completed';
@@ -7,6 +8,9 @@ interface FilterButtonsProps {
 }
 
 export function FilterButtons({ activeFilter, onFilterChange }: FilterButtonsProps) {
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -39,15 +43,15 @@ export function FilterButtons({ activeFilter, onFilterChange }: FilterButtonsPro
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: any) => StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     paddingHorizontal: 20,
     paddingVertical: 12,
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: theme.colors.border,
   },
   button: {
     flex: 1,
@@ -55,18 +59,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: theme.colors.background,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: theme.colors.border,
   },
   activeButton: {
-    backgroundColor: '#6366f1',
-    borderColor: '#6366f1',
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   buttonText: {
     fontSize: 14,
     fontFamily: 'Inter-Medium',
-    color: '#6b7280',
+    color: theme.colors.textSecondary,
   },
   activeButtonText: {
     color: '#ffffff',
