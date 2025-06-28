@@ -3,19 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useStudyContext } from '@/contexts/StudyContext';
-import { 
-  Home, 
-  Plus, 
-  BookOpen, 
-  BarChart3, 
-  Settings, 
-  Menu, 
-  X,
-  Moon,
-  Sun,
-  User,
-  Trophy
-} from 'lucide-react-native';
+import { Chrome as Home, Plus, BookOpen, ChartBar as BarChart3, Settings, Menu, X, Moon, Sun, User, Trophy } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
